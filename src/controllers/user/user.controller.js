@@ -1,6 +1,6 @@
 import createError from 'http-errors'
-import User from '../Models/User.js'
-import { basicUserSchema } from '../helpers/validation_schema.js'
+import User from '#data/models/user/user.model.js'
+import { basicUserSchema } from '#validators/user/userValidation.js'
 
 export const getUser = async (req, res, next) => {
   try {

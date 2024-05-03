@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
-import db from "../Config/Sequelize.js";
+import db from "#lib/sequelize.js";
 
-const User = db.define('Users',{
+const MealRecord = db.define('meal_records',{
   id:{
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -15,7 +15,7 @@ const User = db.define('Users',{
       notEmpty: true
     }
   },
-  firstName:{
+  name:{
     type: DataTypes.STRING,
     allowNull: false,
     validate:{
@@ -23,7 +23,7 @@ const User = db.define('Users',{
       len: [3, 25]
     }
   },
-  lastName:{
+  type:{
     type: DataTypes.STRING,
     allowNull: false,
     validate:{
@@ -31,31 +31,18 @@ const User = db.define('Users',{
       len: [3, 25]
     }
   },
-  phoneNumber:{
-    type: DataTypes.STRING,
+  score:{
+    type: DataTypes.INTEGER,
     allowNull: false,
     unique: true,
     validate:{
       notEmpty: true,
       len: 10
     }
-  },
-  password:{
-    type: DataTypes.STRING,
-    allowNull: false,
-    validate:{
-        notEmpty: true,
-    }
-  },
-  role:{
-    type: DataTypes.STRING,
-    allowNull: false,
-    validate:{
-        notEmpty: true
-    }
   }
 },{
   freezeTableName: true
 });
 
-export default User;
+
+export default MealRecord;
