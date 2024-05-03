@@ -2,16 +2,20 @@
   "name": "ms-people",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "type": "module",
   "scripts": {
     "start": "nodemon app.js"
+  },
+  "imports": {
+    "#*": "./src/*"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
+    "appdynamics": "^24.3.0",
     "argon2": "^0.40.1",
     "axios": "^1.6.8",
     "bcrypt": "^5.0.0",

@@ -2,17 +2,24 @@ import morgan from "morgan"
 import dontenv from 'dotenv'
 import express from "express"
 import createError from "http-errors"
-import UserRoute from "./Routes/UserRoute.js"
+import db from "./src/lib/sequelize.js";
+import UserRoute from "./src/routes/users.route.js"
+import MealsRoute from "./src/routes/meals.rotue.js"
 
 dontenv.config()
 
-const app = express()
+const app = express();
 
-app.use(morgan('dev'))
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// ;(async()=>{
+//   await db.sync({force: true});
+// })();
 
 app.use('/api/v1/people/', UserRoute)
+app.use('/api/v1/meals/', MealsRoute)
 
 app.use(async (req, res, next) => {
   next(createError.NotFound())
