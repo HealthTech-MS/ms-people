@@ -15,11 +15,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ;(async()=>{
-//   await db.sync({force: true});
+//   await db.sync({force: true, logging: console.log});
 // })();
 
 app.use('/api/v1/people/', UserRoute)
-app.use('/api/v1/meals/', MealsRoute)
+app.use('/api/v1/people/', MealsRoute)
 
 app.use(async (req, res, next) => {
   next(createError.NotFound())

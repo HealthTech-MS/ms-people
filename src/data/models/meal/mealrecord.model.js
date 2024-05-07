@@ -28,16 +28,13 @@ const MealRecord = db.define('meal_records',{
     allowNull: false,
     validate:{
       notEmpty: true,
-      len: [3, 25]
     }
   },
   score:{
     type: DataTypes.INTEGER,
     allowNull: false,
-    unique: true,
     validate:{
       notEmpty: true,
-      len: 10
     }
   }
 },{
