@@ -4,8 +4,8 @@ import { getRecord, addRecord, getRecordDays } from "#controllers/meal/mealrecor
 
 const router = express.Router()
 
-router.get('/meals', await verifyUser, getRecord)
-router.post('/meals', await verifyUser, addRecord)
-router.get('/getRecordDays', getRecordDays)
+router.get('/meals', verifyUser, getRecord)
+router.post('/meals', verifyUser, addRecord)
+router.get('/getRecordDays', verifyUser, getRecordDays)
 
 export default router
