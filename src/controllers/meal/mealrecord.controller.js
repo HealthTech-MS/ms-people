@@ -3,7 +3,7 @@ import { Op, where } from "sequelize"
 import { User, MealRecord } from '#data/relations/relations.js'
 import { mealRecordSchema, getRecordSchema } from '#validators/meal/mealRecordValidation.js'
 
-export const getRecord = async (req, res, next) => {
+export const getRecords = async (req, res, next) => {
   try{
     const validationResult = await getRecordSchema.validateAsync(req.query)
 
@@ -26,11 +26,15 @@ export const getRecord = async (req, res, next) => {
 
       end.setDate(new Date(start).getDate() + 1);
       end.setSeconds(end.getSeconds() - 1);
-    }
-
-    if(validationResult.range == "yesterday"){
+    } else if(validationResult.range == "yesterday"){
       start = new Date().setHours(0, 0, 0, 0)
       start = new Date(start).setDate(new Date(start).getDate() - 1);
+      end = new Date(start)
+
+      end.setDate(new Date(start).getDate() + 1);
+      end.setSeconds(end.getSeconds() - 1);
+    } else {
+      start = new Date(validationResult.range)
       end = new Date(start)
 
       end.setDate(new Date(start).getDate() + 1);
