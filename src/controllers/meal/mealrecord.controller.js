@@ -1,5 +1,5 @@
 import createError from 'http-errors'
-import { Op, where } from "sequelize"
+import { Op } from "sequelize"
 import { User, MealRecord } from '#data/relations/relations.js'
 import { mealRecordSchema, getRecordSchema } from '#validators/meal/mealRecordValidation.js'
 
