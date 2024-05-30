@@ -1,4 +1,4 @@
-import ExerciseRecord from '#data/models/Exercise/exerciserecord.model.js'
+import ExerciseRecord from '#data/models/exercise/exerciserecord.model.js'
 import { User, MealRecord } from '#data/relations/relations.js'
 import { Sequelize } from 'sequelize'
 import { Op } from "sequelize"

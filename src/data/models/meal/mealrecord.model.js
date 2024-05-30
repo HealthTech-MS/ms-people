@@ -31,7 +31,7 @@ const MealRecord = db.define('meal_records',{
     }
   },
   score:{
-    type: DataTypes.INTEGER,
+    type: DataTypes.FLOAT,
     allowNull: false,
     validate:{
       notEmpty: true,
