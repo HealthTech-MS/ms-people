@@ -1,3 +1,4 @@
+import ExerciseRecord from '#data/models/exercise/exerciserecord.model.js'
 import { User, MealRecord } from '#data/relations/relations.js'
 import { Sequelize } from 'sequelize'
 import { Op } from "sequelize"
@@ -56,12 +57,13 @@ export const getData = async (req, res, next) => {
     if(req.query.type == "numberCard"){
       const users = await User.findAll()
       const meals = await MealRecord.findAll()
+      const exercises = await ExerciseRecord.findAll()
 
       res.send({ 
         "success"    : true, 
         "users"      : users.length,
         "meals"      : meals.length,
-        "exercises"  : 0
+        "exercises"  : exercises.length,
       })
     }
 
@@ -95,6 +97,21 @@ export const getData = async (req, res, next) => {
       })
     }
 
+    if(req.query.type == "exercisesChart"){
+      let now = new Date()
+      let pastWeek = new Date(now)
+      pastWeek.setDate(now.getDate() -6)
+
+      var base = await getObjectOutOfWeekCount(ExerciseRecord, pastWeek)
+      var mealsPerDay = await getObjectPerDay(ExerciseRecord, now, pastWeek)
+
+      var timeseries = await generateTimeseries(base, mealsPerDay, now)
+      res.send({ 
+        "success"    : true, 
+        "timeseries" : timeseries,
+      })
+    }
+
     if(req.query.type == "usersTable"){
       const users = await User.findAll({
         attributes: ["id", "firstName", "lastName", "phoneNumber"]
@@ -108,5 +125,28 @@ export const getData = async (req, res, next) => {
 
   } catch (error) {
     next(error)
+  }
+}
+
+export const getUserMeals = async (req, res, next) => { // Función tabla meals
+  try {
+    const { userId } = req.query;
+
+    console.log(req.query);
+    console.log(userId);
+
+    const meals = await MealRecord.findAll({
+      where: {
+        user_id: userId,
+      },
+      attributes: ["id", "name", "type", "createdAt"],
+    });
+
+    res.send({
+      success: true,
+      meals,
+    });
+  } catch (error) {
+    next(error);
   }
 }
