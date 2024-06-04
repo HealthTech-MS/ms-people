@@ -3,6 +3,7 @@ import dontenv from 'dotenv'
 import express from "express"
 import createError from "http-errors"
 import db from "./src/lib/sequelize.js";
+import ExercisesRoute from "./src/routes/exercises.route.js"
 import UserRoute from "./src/routes/users.route.js"
 import MealsRoute from "./src/routes/meals.rotue.js"
 import UIRoute from "./src/routes/ui.route.js"
@@ -26,6 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/v1/people/', UserRoute)
 app.use('/api/v1/people/', MealsRoute)
+app.use('/api/v1/people/', ExercisesRoute)
 app.use('/api/v1/people/ui/', UIRoute)
 
 app.use(async (req, res, next) => {
