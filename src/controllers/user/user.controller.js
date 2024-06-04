@@ -1,5 +1,5 @@
 import createError from 'http-errors'
-import User from '#data/models/user/user.model.js'
+import { User } from '#data/relations/relations.js'
 import { basicUserSchema } from '#validators/user/userValidation.js'
 
 export const getUser = async (req, res, next) => {
