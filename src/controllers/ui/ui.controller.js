@@ -110,3 +110,26 @@ export const getData = async (req, res, next) => {
     next(error)
   }
 }
+
+export const getUserMeals = async (req, res, next) => { // Función tabla meals
+  try {
+    const { userId } = req.query;
+
+    console.log(req.query);
+    console.log(userId);
+
+    const meals = await MealRecord.findAll({
+      where: {
+        user_id: userId,
+      },
+      attributes: ["id", "name", "type", "createdAt"],
+    });
+
+    res.send({
+      success: true,
+      meals,
+    });
+  } catch (error) {
+    next(error);
+  }
+}

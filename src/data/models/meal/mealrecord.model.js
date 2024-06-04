@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 import db from "#lib/sequelize.js";
 
-const MealRecord = db.define('meal_records',{
+const MealRecord = db.define('meal_records',{ 
   id:{
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -11,10 +11,10 @@ const MealRecord = db.define('meal_records',{
     type: DataTypes.STRING,
     defaultValue: DataTypes.UUIDV4,
     allowNull: false,
-    validate:{
+    validate:{ 
       notEmpty: true
     }
-  },
+  }, 
   name:{
     type: DataTypes.STRING,
     allowNull: false,
