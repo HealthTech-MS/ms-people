@@ -4,8 +4,8 @@ import { getExerciseRecords, addExerciseRecord, getExerciseRecordDays } from "#c
 
 const router = express.Router()
 
-router.get('/exercises', getExerciseRecords)
-router.post('/exercises', addExerciseRecord)
-router.get('/exercises/getRecordDays', getExerciseRecordDays)
+router.get('/exercises', verifyUser, getExerciseRecords)
+router.post('/exercises', verifyUser, addExerciseRecord)
+router.get('/exercises/getRecordDays', verifyUser, getExerciseRecordDays)
 
 export default router
