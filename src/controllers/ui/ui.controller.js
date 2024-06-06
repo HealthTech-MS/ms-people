@@ -166,11 +166,11 @@ export const getDashboardData = async (req, res, next) => {
     }
 
     if(req.query.type == "userMeal"){
-      const { uuid } = req.query;
+      const { userId } = req.query;
 
       const user = await User.findOne({
         where: {
-          uuid: uuid
+          id: userId
         }
       })
   
