@@ -150,3 +150,52 @@ export const getUserMeals = async (req, res, next) => { // Función tabla meals
     next(error);
   }
 }
+
+// export const getUserMealsChart = async (req, res, next) => { // Mostrar gráfica con comida registrada por usuario individual
+//   try {
+//       const { userId } = req.query;
+
+//       const mealsPerDay = await MealRecord.findAll({
+//           attributes: [
+//               [Sequelize.fn("DATE", Sequelize.col("createdAt")), "date"],
+//               [Sequelize.fn("COUNT", Sequelize.col("uuid")), "count"],
+//           ],
+//           where: {
+//               user_id: userId,
+//           },
+//           group: [Sequelize.fn("DATE", Sequelize.col("createdAt"))],
+//           order: [[Sequelize.fn("DATE", Sequelize.col("createdAt")), "ASC"]],
+//       });
+
+//       const timeseries = mealsPerDay.map(record => ({
+//           x: new Date(record.dataValues.date).getTime(),
+//           y: record.dataValues.count,
+//       }));
+
+//       res.send({
+//           success: true,
+//           timeseries,
+//       });
+//   } catch (error) {
+//       next(error);
+//   }
+// };
+
+// export const getUserHighestScore = async (req, res, next) => {
+//   try {
+//       const { userId } = req.query;
+
+//       const highestScore = await MealRecord.max('score', {
+//           where: {
+//               user_id: userId,
+//           }
+//       });
+
+//       res.send({
+//           success: true,
+//           highestScore,
+//       });
+//   } catch (error) {
+//       next(error);
+//   }
+// };
