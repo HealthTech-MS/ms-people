@@ -1,12 +1,10 @@
 import express from "express"
 import { verifyUser } from "#middleware/AuthValidation.js"
-import { getData, getUserMeals } from "#controllers/ui/ui.controller.js" // ,getUserMealsChart, getUserHighestScore
+import { getDashboardData, getAppData } from "#controllers/ui/ui.controller.js"
 
 const router = express.Router()
 
-router.get("/data", getData) //Todo Add Verify User (Admin)
-router.get("/userMeals", getUserMeals)
-// router.get("/userMealsChart", getUserMealsChart);
-// router.get("/userHighestScore", getUserHighestScore);
+router.get("/data/dashboard", getDashboardData)
+router.get("/data/app", verifyUser, getAppData)
 
 export default router

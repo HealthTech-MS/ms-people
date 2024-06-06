@@ -14,11 +14,43 @@ async function getObjectOutOfWeekCount(object, start) {
   return result.length
 }
 
-async function getObjectPerDay(object, start, end) {
+async function getAttributesPerTimeRange(object, start, end) {
   return await object.findAll({
     attributes: [
       [Sequelize.fn("DATE", Sequelize.col("createdAt")), "date"],
       [Sequelize.fn("COUNT", Sequelize.col("uuid")), "count"],
+    ],
+    where: {
+      createdAt: {
+        [Op.between]: [end.setHours(0, 0, 0, 0), start.setHours(23, 59, 59, 999)]
+      }
+    },
+    group: [Sequelize.fn("DATE", Sequelize.col("createdAt"))],
+    order: [[Sequelize.fn("DATE", Sequelize.col("createdAt")), "ASC"]],
+  })
+}
+
+async function getMeanScorePerTimeRange(object, start, end) {
+  return await object.findAll({
+    attributes: [
+      [Sequelize.fn("DATE", Sequelize.col("createdAt")), "date"],
+      [Sequelize.fn("AVG", Sequelize.col("score")), "score"],
+    ],
+    where: {
+      createdAt: {
+        [Op.between]: [end.setHours(0, 0, 0, 0), start.setHours(23, 59, 59, 999)]
+      }
+    },
+    group: [Sequelize.fn("DATE", Sequelize.col("createdAt"))],
+    order: [[Sequelize.fn("DATE", Sequelize.col("createdAt")), "ASC"]],
+  })
+}
+
+async function getExercisePerTimeRange(object, start, end) {
+  return await object.findAll({
+    attributes: [
+      [Sequelize.fn("DATE", Sequelize.col("createdAt")), "date"],
+      [Sequelize.fn("SUM", Sequelize.col("duration")), "duration"],
     ],
     where: {
       createdAt: {
@@ -51,9 +83,8 @@ async function generateTimeseries(originalBase, objectList, start_time){
   })
 }
 
-export const getData = async (req, res, next) => {
+export const getDashboardData = async (req, res, next) => {
   try {
-
     if(req.query.type == "numberCard"){
       const users = await User.findAll()
       const meals = await MealRecord.findAll()
@@ -73,7 +104,7 @@ export const getData = async (req, res, next) => {
       pastWeek.setDate(now.getDate() -6)
 
       var base = await getObjectOutOfWeekCount(User, pastWeek)
-      var usersPerDay = await getObjectPerDay(User, now, pastWeek)
+      var usersPerDay = await getAttributesPerTimeRange(User, now, pastWeek)
 
       var timeseries = await generateTimeseries(base, usersPerDay, now)
       res.send({ 
@@ -88,7 +119,7 @@ export const getData = async (req, res, next) => {
       pastWeek.setDate(now.getDate() -6)
 
       var base = await getObjectOutOfWeekCount(MealRecord, pastWeek)
-      var mealsPerDay = await getObjectPerDay(MealRecord, now, pastWeek)
+      var mealsPerDay = await getAttributesPerTimeRange(MealRecord, now, pastWeek)
 
       var timeseries = await generateTimeseries(base, mealsPerDay, now)
       res.send({ 
@@ -103,7 +134,7 @@ export const getData = async (req, res, next) => {
       pastWeek.setDate(now.getDate() -6)
 
       var base = await getObjectOutOfWeekCount(ExerciseRecord, pastWeek)
-      var mealsPerDay = await getObjectPerDay(ExerciseRecord, now, pastWeek)
+      var mealsPerDay = await getAttributesPerTimeRange(ExerciseRecord, now, pastWeek)
 
       var timeseries = await generateTimeseries(base, mealsPerDay, now)
       res.send({ 
@@ -123,79 +154,127 @@ export const getData = async (req, res, next) => {
       })
     }
 
+    if(req.query.type == "usersTable"){
+      const users = await User.findAll({
+        attributes: ["id", "firstName", "lastName", "phoneNumber"]
+      })
+
+      res.send({
+        "success": true,
+        users
+      })
+    }
+
+    if(req.query.type == "userMeal"){
+      const { uuid } = req.query;
+
+      const user = await User.findOne({
+        where: {
+          uuid: uuid
+        }
+      })
+  
+      if(!user){
+        throw createError.NotFound('User not found')
+      }
+
+      const meals = await MealRecord.findAll({
+        where: {
+          user_id: user.id,
+        },
+        attributes: ["id", "name", "type", "createdAt"],
+      });
+  
+      res.send({
+        success: true,
+        meals,
+      });
+    }
+
   } catch (error) {
     next(error)
   }
 }
 
-export const getUserMeals = async (req, res, next) => { // Función tabla meals
+export const getAppData = async (req, res, next) => {
   try {
-    const { userId } = req.query;
+    if(req.query.type == "homeScreen"){
+      const user = await User.findOne({
+        where: {
+          uuid: req.query.uuid
+        }
+      })
+  
+      if(!user){
+        throw createError.NotFound('User not found')
+      }
 
-    console.log(req.query);
-    console.log(userId);
+      const today = new Date();
 
-    const meals = await MealRecord.findAll({
-      where: {
-        user_id: userId,
-      },
-      attributes: ["id", "name", "type", "createdAt"],
-    });
+      var mealsPerDay = await getAttributesPerTimeRange(MealRecord, today, today)
+      var exercisesPerDay = await getAttributesPerTimeRange(ExerciseRecord, today, today)
 
-    res.send({
-      success: true,
-      meals,
-    });
+      var scoreMealsPerDay = await getMeanScorePerTimeRange(MealRecord, today, today)
+      var scoreExercisesPerDay = await getMeanScorePerTimeRange(ExerciseRecord, today, today)
+
+      var timeExercisesPerDay = await getExercisePerTimeRange(ExerciseRecord, today, today)
+
+      if(mealsPerDay.length != 0){
+        mealsPerDay = mealsPerDay[0].dataValues.count
+      } else{
+        mealsPerDay = "0"
+      }
+
+      if(exercisesPerDay.length != 0){
+        exercisesPerDay = exercisesPerDay[0].dataValues.count
+      } else{
+        exercisesPerDay = "0"
+      }
+
+      if(scoreMealsPerDay.length != 0){
+        scoreMealsPerDay = scoreMealsPerDay[0].dataValues.score
+      } else{
+        scoreMealsPerDay = 0
+      }
+
+      if(scoreExercisesPerDay.length != 0){
+        scoreExercisesPerDay = scoreExercisesPerDay[0].dataValues.score
+      } else{
+        scoreExercisesPerDay = 0
+      }
+
+      if(timeExercisesPerDay.length != 0){
+        timeExercisesPerDay = `${(timeExercisesPerDay[0].dataValues.duration / 60).toFixed(1)}h`
+      } else{
+        timeExercisesPerDay = "0h"
+      }
+
+      var meanScore = ((scoreMealsPerDay + scoreExercisesPerDay) / 2)
+
+      if(meanScore <= 0.4){
+        meanScore = "Bajo"
+      } else if (meanScore >= 0.5 && meanScore <= 0.9){
+        meanScore = "Medio Bajo"
+      } else if (meanScore >= 1 && meanScore <= 1.4){
+        meanScore = "Medio"
+      } else if (meanScore >= 1.5 && meanScore <= 1.9){
+        meanScore = "Medio Alto"
+      } else {
+        meanScore = "Perfecto"
+      }
+
+      res.send({
+        "success": true,
+        "data": {
+          "score": meanScore, 
+          "activeTime": timeExercisesPerDay, 
+          "meals": mealsPerDay, 
+          "exercises": exercisesPerDay
+        }
+      })
+    }
   } catch (error) {
     next(error);
   }
 }
 
-// export const getUserMealsChart = async (req, res, next) => { // Mostrar gráfica con comida registrada por usuario individual
-//   try {
-//       const { userId } = req.query;
-
-//       const mealsPerDay = await MealRecord.findAll({
-//           attributes: [
-//               [Sequelize.fn("DATE", Sequelize.col("createdAt")), "date"],
-//               [Sequelize.fn("COUNT", Sequelize.col("uuid")), "count"],
-//           ],
-//           where: {
-//               user_id: userId,
-//           },
-//           group: [Sequelize.fn("DATE", Sequelize.col("createdAt"))],
-//           order: [[Sequelize.fn("DATE", Sequelize.col("createdAt")), "ASC"]],
-//       });
-
-//       const timeseries = mealsPerDay.map(record => ({
-//           x: new Date(record.dataValues.date).getTime(),
-//           y: record.dataValues.count,
-//       }));
-
-//       res.send({
-//           success: true,
-//           timeseries,
-//       });
-//   } catch (error) {
-//       next(error);
-//   }
-// };
-
-// export const getUserHighestScore = async (req, res, next) => {
-//   try {
-//       const { userId } = req.query;
-
-//       const highestScore = await MealRecord.max('score', {
-//           where: {
-//               user_id: userId,
-//           }
-//       });
-
-//       res.send({
-//           success: true,
-//           highestScore,
-//       });
-//   } catch (error) {
-//       next(error);
-//   }
-// };
