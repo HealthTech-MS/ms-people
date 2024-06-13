@@ -4,7 +4,7 @@ import { getDashboardData, getAppData, getUserMealsChart, getUserAverageScore  }
 
 const router = express.Router()
 
-router.get("/data/dashboard", getDashboardData)
+router.get("/data/dashboard", verifyUser, getDashboardData)
 router.get("/data/app", verifyUser, getAppData)
 router.get("/data/userMealsChart", getUserMealsChart);
 router.get("/data/userAverageScore", getUserAverageScore);
