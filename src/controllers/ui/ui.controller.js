@@ -277,3 +277,52 @@ export const getAppData = async (req, res, next) => {
     next(error);
   }
 }
+
+
+export const getUserMealsChart = async (req, res, next) => {
+  try {
+      const { userId } = req.query;
+
+      const meals = await MealRecord.findAll({
+          where: {
+              user_id: userId,
+          },
+          attributes: ['name', 'score', 'createdAt'],
+          order: [['createdAt', 'ASC']],
+      });
+
+      const mealsData = meals.map(meal => ({
+          x: meal.name,
+          y: meal.score,
+      }));
+
+      res.send({
+          success: true,
+          meals: mealsData,
+      });
+  } catch (error) {
+      next(error);
+  }
+};
+
+
+export const getUserAverageScore = async (req, res, next) => {
+  try {
+      const { userId } = req.query;
+
+      const averageScore = await MealRecord.findOne({
+          where: {
+              user_id: userId,
+          },
+          attributes: [[Sequelize.fn('AVG', Sequelize.col('score')), 'averageScore']],
+      });
+
+      res.send({
+          success: true,
+          averageScore: averageScore.dataValues.averageScore,
+      });
+  } catch (error) {
+      next(error);
+  }
+};
+
