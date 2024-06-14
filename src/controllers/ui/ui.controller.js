@@ -326,3 +326,49 @@ export const getUserAverageScore = async (req, res, next) => {
   }
 };
 
+export const getUserExercises = async (req, res, next) => {
+  try {
+    const { userId } = req.query;
+
+    const exercises = await ExerciseRecord.findAll({
+      where: {
+        user_id: userId,
+      },
+      attributes: ["id", "name", "duration", "createdAt"],
+      order: [["createdAt", "ASC"]],
+    });
+
+    res.send({
+      success: true,
+      exercises,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getUserExercisesChart = async (req, res, next) => {
+  try {
+    const { userId } = req.query;
+
+    const exercises = await ExerciseRecord.findAll({
+      where: {
+        user_id: userId,
+      },
+      attributes: ['name', 'score', 'createdAt'],
+      order: [['createdAt', 'ASC']],
+    });
+
+    const exercisesData = exercises.map(exercise => ({
+      x: exercise.name,
+      y: exercise.score,
+    }));
+
+    res.send({
+      success: true,
+      exercises: exercisesData,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
