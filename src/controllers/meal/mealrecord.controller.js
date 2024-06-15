@@ -48,7 +48,7 @@ export const getRecords = async (req, res, next) => {
           [Op.between]: [start, end]
         }
       },
-      attributes: ["id", "uuid", "name", "type", "createdAt", "updatedAt"]
+      attributes: ["id", "uuid", "name", "type", "score", "createdAt", "updatedAt"]
     })
 
     if(records.length == 0){
