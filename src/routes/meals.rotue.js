@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.get('/meals', verifyUser, getRecords)
 router.post('/meals', verifyUser, addRecord)
-router.get('/getRecordDays', verifyUser, getRecordDays)
+router.get('/meals/getRecordDays', verifyUser, getRecordDays)
 
 export default router
  

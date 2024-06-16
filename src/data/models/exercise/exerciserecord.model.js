@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import db from "#lib/sequelize.js";
+import moment from "moment"
 
 const ExerciseRecord = db.define('exercise_records', {
   id: {
@@ -44,7 +45,27 @@ const ExerciseRecord = db.define('exercise_records', {
       model: 'users',
       key: 'id'
     }
-  }
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    defaultValue: function () {
+      return moment.tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+    },
+    get: function () {
+      const rawValue = this.getDataValue('createdAt');
+      return moment.tz(rawValue, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+    },
+  },
+  updatedAt: {
+    type: DataTypes.DATE,
+    defaultValue: function () {
+      return moment.tz('America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+    },
+    get: function () {
+      const rawValue = this.getDataValue('updatedAt');
+      return moment.tz(rawValue, 'America/Mexico_City').format('YYYY-MM-DD HH:mm:ss');
+    },
+  },
 }, {
   freezeTableName: true
 });
