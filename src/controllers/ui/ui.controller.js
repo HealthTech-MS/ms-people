@@ -14,15 +14,16 @@ async function getObjectOutOfWeekCount(object, start) {
   return result.length
 }
 
-async function getAttributesPerTimeRange(object, start, end) {
+async function getAttributesPerTimeRange(object, start, end, user) {
   return await object.findAll({
     attributes: [
       [Sequelize.fn("DATE", Sequelize.col("createdAt")), "date"],
       [Sequelize.fn("COUNT", Sequelize.col("uuid")), "count"],
     ],
     where: {
+      user_id: user.id,
       createdAt: {
-        [Op.between]: [end.setHours(0, 0, 0, 0), start.setHours(23, 59, 59, 999)]
+        [Op.between]: [start.setHours(0, 0, 0, 0), end.setHours(23, 59, 59, 999)]
       }
     },
     group: [Sequelize.fn("DATE", Sequelize.col("createdAt"))],
@@ -211,8 +212,8 @@ export const getAppData = async (req, res, next) => {
 
       const today = new Date();
 
-      var mealsPerDay = await getAttributesPerTimeRange(MealRecord, today, today)
-      var exercisesPerDay = await getAttributesPerTimeRange(ExerciseRecord, today, today)
+      var mealsPerDay = await getAttributesPerTimeRange(MealRecord, today, today, user)
+      var exercisesPerDay = await getAttributesPerTimeRange(ExerciseRecord, today, today, user)
 
       var scoreMealsPerDay = await getMeanScorePerTimeRange(MealRecord, today, today)
       var scoreExercisesPerDay = await getMeanScorePerTimeRange(ExerciseRecord, today, today)
