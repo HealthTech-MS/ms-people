@@ -1,5 +1,4 @@
 import createError from 'http-errors'
-import { Op } from "sequelize"
 import { User, ExerciseRecord } from '#data/relations/relations.js'
 import { exerciseRecordSchema, getRecordSchema } from '#validators/exercise/exerciseRecordValidation.js'
 
@@ -26,13 +25,6 @@ export const getExerciseRecords = async (req, res, next) => {
 
       end.setDate(new Date(start).getDate() + 1);
       end.setSeconds(end.getSeconds() - 1);
-    } else if (validationResult.range == "yesterday") {
-      start = new Date().setHours(0, 0, 0, 0);
-      start = new Date(start).setDate(new Date(start).getDate() - 1);
-      end = new Date(start);
-
-      end.setDate(new Date(start).getDate() + 1);
-      end.setSeconds(end.getSeconds() - 1);
     } else {
       start = new Date(validationResult.range);
       end = new Date(start);
@@ -41,19 +33,26 @@ export const getExerciseRecords = async (req, res, next) => {
       end.setSeconds(end.getSeconds() - 1);
     }
 
-    const records = await ExerciseRecord.findAll({
+    const oRecords = await ExerciseRecord.findAll({
       where: {
         user_id: user.id,
-        createdAt: {
-          [Op.between]: [start, end]
-        }
       },
       attributes: ["id", "uuid", "name", "duration", "score", "createdAt", "updatedAt"]
     });
 
+    var records = []
+    
+    for(var i = 0; i < oRecords.length; i++){
+      const date = new Date(oRecords[i].createdAt.replace(" ","T"))
+      if(date >= start && date <= end){
+        records.push(oRecords[i])
+      }
+    }
+
     if (records.length === 0) {
       throw createError.NotFound("No exercise records found");
     }
+
     res.send({ "success": true, records });
   } catch (error) {
     if (error.isJoi === true) {
@@ -81,7 +80,7 @@ export const getExerciseRecordDays = async (req, res, next) => {
       }
     });
 
-    const repeatedDates = records.map(record => new Date(record.createdAt.toDateString()).toISOString());
+    const repeatedDates = records.map(record => record.createdAt.split(" ")[0] + "T06:00:01.000Z")
     const dates = [...new Set(repeatedDates)];
     res.send({ "success": true, dates });
   } catch (error) {
